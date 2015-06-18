@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from textwrap import wrap
 import sys
 
-## get rid of missing data for specified variable
-
+## A static function that calcuates the descriptive statistics 
+## assumes that all variable in nvar, timeframe are in the dataframe (df)
 def analyzeVariables(df, timeFrame, nvar):
   baseList = ['Date', timeFrame, 'copy_' + timeFrame]
   header = list(df.columns)
@@ -16,17 +16,15 @@ def analyzeVariables(df, timeFrame, nvar):
     if var in header: 
       baseList.append(var)
     else:
-      print("header var not found")
+      raise Exception("header var not found")
 
   df2 = df[baseList]
-  print(baseList)
-  print(df2.info())
   ## adds the timeframe for the groupby values
-  nvar.append(timeFrame)
-  print("okay")
-  grouped = df2[nvar].groupby(timeFrame)
+  tempVar = nvar + [timeFrame]
+  print(tempVar)
+  print(nvar)
+  grouped = df2[tempVar].groupby(timeFrame)
   df2 = grouped.agg([np.sum, np.mean, np.std])
-  print("finished 1")
   return df2
 
 ## create simple, minimalistic plot
@@ -42,22 +40,22 @@ def createPlot(timeFrame, plotTitle, variable, units, df2):
 
 ## process data and create a csv from timeframe
 if __name__ == '__main__': 
-  filename = "data.csv"
+  FILENAME= "data.csv"
   DEFAULT_HEADER =59
-  df = pd.read_csv(filename, header=DEFAULT_HEADER, delim_whitespace=False)
+  NVARS= ['Precip', 'Air max', 'Air min', 'ETo']
+  df = pd.read_csv(FILENAME, header=DEFAULT_HEADER, delim_whitespace=False)
 
-  timeframe = ["month","year"]
-  f =  lambda u: int(str(u)[4:-2]) 
-  f2 = lambda u: int(str(u)[:-4])
+  TIMEFRAME= ["month","year"]
+  f =  lambda u: int(str(u)[4:-2]) #helper functions that get month 
+  f2 = lambda u: int(str(u)[:-4])   # and date
   df['month'] = df['Date'].map(f) 
   df['year'] = df['Date'].map(f2) 
   df['copy_month'] = df['month']
   df['copy_year'] = df['year']
 
-  nvars= ['Precip', 'Air max']
+  ## create two csv files for each of the timeframes
+  for tf in TIMEFRAME:
+    result = analyzeVariables(df, tf, NVARS)
+    result.to_csv("csv/data-processed-" + tf + ".csv", encoding='utf-8')
 
-  for tf in timeframe:
-    result= analyzeVariables(df, tf, nvars)
-    result.to_csv("csv/data-processed" + tf + ".csv", encoding='utf-8')
-
-  print("Done")
+  print("Analysis completed")
