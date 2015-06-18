@@ -49,6 +49,17 @@ if __name__ == '__main__':
   df2.to_csv("csv/MonthlyPrecip.csv", encoding='utf-8')
 
   df2 = analyzeOneVariable(df, "year", "Precip")
-  createPlot("year", "Precipitation", "Precip", "", df2) 
+  createPlot("year", "Precipitation", "Precip", "(inches)", df2) 
   df2.to_csv("csv/YearlyPrecip.csv", encoding='utf-8')
+
+  df2 = analyzeOneVariable(df, "year", "Air_max")
+  createPlot("year", "Maximum temperature", "Air_max", "(F)", df2) 
+  df2.to_csv("csv/MaxYearlyTemp.csv", encoding='utf-8')
+
+  df2 = analyzeOneVariable(df, "month", "Air_max")
+  createPlot("month", "Maximum temperature", "Air_max", "(F)", df2) 
+  df2.to_csv("csv/MaxMonthlyTemp.csv", encoding='utf-8')
+
+
+
   print("Done")
